@@ -456,8 +456,16 @@ sub get_all_VariationFeatureOverlapAlleles {
         push @new, $vfo;
       }
     }
-
-    $vfos = \@new;
+    if(scalar(@new))
+    {
+      $vfos = \@new;
+    }
+    else{
+      # create VF object
+      my $vf = Bio::EnsEMBL::Variation::VariationFeature->new_fast({
+        variation_name => 'CODING_ONLY_ARRAY_EMPTY',
+      });
+    }
   }
 
   # method name stub for getting *VariationAlleles
