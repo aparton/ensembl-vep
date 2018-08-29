@@ -1038,7 +1038,7 @@ sub cache() {
 
   my $num = 1;
   my $species_list;
-
+  print "Attempting to download species list from $CACHE_URL\n" unless $QUIET;
   if($CACHE_URL =~ /^ftp/i) {
     $CACHE_URL =~ m/(ftp:\/\/)?(.+?)\/(.+)/;
     $ftp = Net::FTP->new($2, Passive => 1) or die "ERROR: Could not connect to FTP host $2\n$@\n";
@@ -1056,7 +1056,7 @@ sub cache() {
     @files = grep {$_ =~ /tar.gz/} readdir DIR;
     closedir DIR;
   }
-
+  print "Failed to get species list - looking at version $DATA_VERSION\n" unless $QUIET;
   # if we don't have a species list, we'll have to guess
   if(!scalar(@files)) {
     print "Could not get current species list - using predefined list instead\n";
@@ -1075,7 +1075,7 @@ sub cache() {
     # sort
     @files = sort {($a =~ /homo_sapiens/) <=> ($b =~ /homo_sapiens/) || $a cmp $b} @files;
   }
-
+  $DB::single = 1;
   foreach my $file(@files) {
     $species_list .= $num++." : ".$file."\n";
   }
