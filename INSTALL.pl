@@ -1038,12 +1038,13 @@ sub cache() {
 
   my $num = 1;
   my $species_list;
-  print " Attempting to get cache from $CACHE_URL\n" unless $QUIET;
-  print " Looking at version $DATA_VERSION\n" unless $QUIET;
+  print " - Attempting to get cache from $CACHE_URL\n" unless $QUIET;
+  print " - Looking at version $DATA_VERSION\n" unless $QUIET;
   if($CACHE_URL =~ /^ftp/i) {
     $CACHE_URL =~ m/(ftp:\/\/)?(.+?)\/(.+)/;
-    print " Attempting to connect to the FTP host\n" unless $QUIET;
+    print " - Attempting to connect to the FTP host as user $FTP_USER\n" unless $QUIET;
     $ftp = Net::FTP->new($2, Passive => 1) or die "ERROR: Could not connect to FTP host $2\n$@\n";
+    print " - Successfully connected\n" unless $QUIET;
     $ftp->login($FTP_USER) or die "ERROR: Could not login as $FTP_USER\n$@\n";
     $ftp->binary();
 
