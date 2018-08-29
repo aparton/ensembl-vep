@@ -1038,7 +1038,7 @@ sub cache() {
 
   my $num = 1;
   my $species_list;
-
+  print " Attempting to get cache from $CACHE_URL\n" unless $QUIET;
   if($CACHE_URL =~ /^ftp/i) {
     $CACHE_URL =~ m/(ftp:\/\/)?(.+?)\/(.+)/;
     $ftp = Net::FTP->new($2, Passive => 1) or die "ERROR: Could not connect to FTP host $2\n$@\n";
@@ -1061,7 +1061,7 @@ sub cache() {
   if(!scalar(@files)) {
     print "Could not get current species list - using predefined list instead\n";
     print "For more species, see http://www.ensembl.org/info/docs/tools/vep/script/vep_cache.html#pre\n";
-
+    print " Failed to get cache - looking at version $DATA_VERSION \n" unless $QUIET;
     @files = (
       "bos_taurus_vep_".$DATA_VERSION."_UMD3.1.tar.gz",
       "danio_rerio_vep_".$DATA_VERSION."_Zv9.tar.gz",
