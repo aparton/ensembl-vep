@@ -45,6 +45,7 @@ use File::Basename;
 use Net::FTP;
 use Cwd;
 use Scalar::Util qw(looks_like_number);
+use Data::Dumper;
 use Bio::EnsEMBL::VEP::Utils qw(get_version_data get_version_string);
 
 our (
@@ -1047,12 +1048,15 @@ sub cache() {
     print " - Successfully connected\n" unless $QUIET;
     $ftp->login($FTP_USER) or die "ERROR: Could not login as $FTP_USER\n$@\n";
     $ftp->binary();
-
+    print " - directory list $3\n" unless $QUIET;
     foreach my $sub(split /\//, $3) {
+      print " - Attempting to change directory to $sub\n" unless $QUIET; 
+      #rint Dumper $ftp->cwd($sub);
       $ftp->cwd($sub) or die "ERROR: Could not change directory to $sub\n$@\n";
+      push @files, grep {$_ =~ /tar.gz/} $ftp->ls;
     }
 
-    push @files, grep {$_ =~ /tar.gz/} $ftp->ls;
+    
   }
   else {
     opendir DIR, $CACHE_URL;
@@ -1066,7 +1070,7 @@ sub cache() {
     print "For more species, see http://www.ensembl.org/info/docs/tools/vep/script/vep_cache.html#pre\n";
     @files = (
       "bos_taurus_vep_".$DATA_VERSION."_UMD3.1.tar.gz",
-      "danio_rerio_vep_".$DATA_VERSION."_Zv9.tar.gz",
+      "danio_rerio_vep_".$DATA_VERSION."_GRCz11.tar.gz",
       "homo_sapiens_vep_".$DATA_VERSION."_GRCh37.tar.gz",
       "homo_sapiens_vep_".$DATA_VERSION."_GRCh38.tar.gz",
       "mus_musculus_vep_".$DATA_VERSION."_GRCm38.tar.gz",
