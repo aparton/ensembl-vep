@@ -1044,7 +1044,7 @@ sub cache() {
   if($CACHE_URL =~ /^ftp/i) {
     $CACHE_URL =~ m/(ftp:\/\/)?(.+?)\/(.+)/;
     print " - Attempting to connect to the FTP host as user $FTP_USER\n" unless $QUIET;
-    $ftp = Net::FTP->new($2, Passive => 1) or die "ERROR: Could not connect to FTP host $2\n$@\n";
+    $ftp = Net::FTP->new($2, Passive => 0) or die "ERROR: Could not connect to FTP host $2\n$@\n";
     print " - Successfully connected\n" unless $QUIET;
     $ftp->login($FTP_USER) or die "ERROR: Could not login as $FTP_USER\n$@\n";
     $ftp->binary();
@@ -1297,7 +1297,7 @@ sub fasta() {
 
   if($FASTA_URL =~ /^ftp/i) {
     $FASTA_URL =~ m/(ftp:\/\/)?(.+?)\/(.+)/;
-    $ftp = Net::FTP->new($2, Passive => 1) or die "ERROR: Could not connect to FTP host $2\n$@\n";
+    $ftp = Net::FTP->new($2, Passive => 0) or die "ERROR: Could not connect to FTP host $2\n$@\n";
     $ftp->login($FTP_USER) or die "ERROR: Could not login as $FTP_USER\n$@\n";
     $ftp->binary();
 
