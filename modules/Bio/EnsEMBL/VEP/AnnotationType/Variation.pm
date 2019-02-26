@@ -84,9 +84,9 @@ sub annotate_InputBuffer {
     foreach my $vf(
       grep {ref($_) ne 'Bio::EnsEMBL::Variation::StructuralVariationFeature'}
       @{$buffer->get_overlapping_vfs($existing_vf->{start}, $existing_vf->{end})}
-    ) {
+    ) {      
       my $matched = $self->compare_existing($vf, $existing_vf);
-      push @{$vf->{existing}}, $matched if $matched;
+      push @{$vf->{existing}}, $matched if ($matched && !(grep($_->{variation_name} eq $matched->{variation_name},@{$vf->{existing}})));
     }
   }
 
@@ -174,7 +174,25 @@ sub compare_existing {
       strand => $existing_var->{strand}
     }
   );
-    
+
+  if(defined($input_var->{unshifted_allele_string}))
+  {
+    my $matched_alleles_unshifted = get_matched_variant_alleles(
+      {
+        allele_string => $input_var->{unshifted_allele_string},
+        pos => $input_var->{unshifted_start},
+        strand => $input_var->{strand}
+      },
+      {
+        allele_string => $existing_var->{allele_string},
+        pos => $existing_var->{start},
+        strand => $existing_var->{strand}
+      }
+    );
+
+    push @$matched_alleles, @$matched_alleles_unshifted;
+  }   
+  
   # make a copy as we're going to add allele data to it
   if(@$matched_alleles) {
     my %existing_var_copy = %{$existing_var};

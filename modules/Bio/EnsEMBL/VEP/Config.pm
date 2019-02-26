@@ -93,6 +93,7 @@ our %DEFAULTS = (
   output_format     => 'vep',
   terms             => 'SO',
   failed            => 0,
+  no_shift          => 0,
   core_type         => 'core',
   polyphen_analysis => 'humvar',
   pick_order        => [qw(canonical appris tsl biotype ccds rank length ensembl refseq)],
@@ -393,6 +394,7 @@ our %INCOMPATIBLE = (
   tab         => [qw(vcf gvf json)],
   individual  => [qw(minimal)],
   check_ref   => [qw(lookup_ref)],
+  no_shift    => [qw(shift_hgvs)],
 );
 
 # deprecated/replaced flags
