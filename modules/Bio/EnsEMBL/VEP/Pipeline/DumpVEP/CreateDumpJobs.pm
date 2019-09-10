@@ -200,25 +200,37 @@ sub get_chr_jobs {
     # and there may not be a direct link between A <-> C in the DB
     # so let's allow for one level of indirection
     my $tree = {};
-    foreach my $syn(@{$srsa->fetch_all}) {
-      my $syn_slice = $sa->fetch_by_seq_region_id($syn->seq_region_id);
-      next unless $syn_slice;
-      my ($a, $b) = sort ($syn_slice->seq_region_name, $syn->name);
-      $tree->{$a}->{$b} = 1;
-      $tree->{$_}->{$b} = 1 for keys %{$tree->{$a} || {}};
-      $tree->{$_}->{$a} = 1 for keys %{$tree->{$b} || {}};
-    }
-
-    # now create uniq A <-> B / B <-> A pairs
+    
+    # To prevent memory errors with species with many seq_regions, process synonyms in blocks
+    my $synonym_buffer_size = 2000;
+    my @synonyms = @{$srsa->fetch_all};
     my %uniq;
-    foreach my $a(keys %$tree) {
-      foreach my $b(grep {$a ne $_} keys %{$tree->{$a}}) {
-        $uniq{join("\t", sort ($a, $b))} = 1;
+    for(my $range = 0; $range < (scalar(@synonyms) / $synonym_buffer_size); $range++){
+
+      my ($range_start, $range_end) = ($range * $synonym_buffer_size, ($range+1) * $synonym_buffer_size - 1);
+      $range_end = (scalar(@synonyms) - 1) if $range_end > scalar(@synonyms);
+      my @sub_array = @synonyms[$range_start .. $range_end];
+      
+      foreach my $syn(@sub_array) {
+        my $syn_slice = $sa->fetch_by_seq_region_id($syn->seq_region_id);
+        next unless $syn_slice;
+        my ($a, $b) = sort ($syn_slice->seq_region_name, $syn->name);
+        $tree->{$a}->{$b} = 1;
+        $tree->{$_}->{$b} = 1 for keys %{$tree->{$a} || {}};
+        $tree->{$_}->{$a} = 1 for keys %{$tree->{$b} || {}};
       }
+    
+      # now create uniq A <-> B / B <-> A pairs
+      foreach my $a(keys %$tree) {
+        foreach my $b(grep {$a ne $_} keys %{$tree->{$a}}) {
+          $uniq{join("\t", sort ($a, $b))} = 1;
+        }
+      }
+      $tree = ();
+
+      print SYN "$_\n" for keys %uniq;
+      %uniq = ();
     }
-
-    print SYN "$_\n" for keys %uniq;
-
     close SYN;
   }
 
