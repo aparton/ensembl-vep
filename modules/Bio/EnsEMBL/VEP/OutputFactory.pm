@@ -254,7 +254,7 @@ sub new {
 sub get_all_lines_by_InputBuffer {
   my $self = shift;
   my $buffer = shift;
-
+$DB::single = 1;$DB::single = 1;$DB::single = 1;$DB::single = 1;
   # output_hash_to_line will be implemented in the child class as its behaviour varies by output type
   return [map {$self->output_hash_to_line($_)} @{$self->get_all_output_hashes_by_InputBuffer($buffer)}];
 }
@@ -370,6 +370,7 @@ sub get_all_VariationFeatureOverlapAllele_output_hashes {
 
   my $vfoas = $self->$method($vf);
 
+  my $alt_alleles_count = scalar(@{$vf->_get_alleles});
   # summary, most_severe don't need most of the downstream logic from hereon
   return $self->summary_only($vf, $hash, $vfoas) if $self->{summary} || $self->{most_severe};
 
@@ -377,9 +378,11 @@ sub get_all_VariationFeatureOverlapAllele_output_hashes {
 
     # copy the initial VF-based hash so we're not overwriting
     my %copy = %$hash;
-
+    my $type = (split('::', ref($vfoa)))[-1];
+    $vfoa->clear_shifting_variables if (($alt_alleles_count > 1) && $type eq 'TranscriptVariationAllele') || $self->param('minimal');
+    #$vfoa->clear_shifting_variables if ($alt_alleles_count > 1) && !$self->param('minimal') && $type eq 'TranscriptVariationAllele';
     # we have a method defined for each sub-class of VariationFeatureOverlapAllele
-    my $method = (split('::', ref($vfoa)))[-1].'_to_output_hash';
+    my $method = $type.'_to_output_hash';
     my $output = $self->$method($vfoa, \%copy, $vf);
 
     # run plugins
@@ -2078,13 +2081,13 @@ sub rejoin_variants_in_InputBuffer {
   my $buffer = shift;
 
   my @joined_list = ();
-
+$DB::single = 1;
   # backup stat logging status
   my $no_stats = $self->{no_stats};
   $self->{no_stats} = 1;
 
   foreach my $vf(@{$buffer->buffer}) {
-
+$DB::single = 1;
     # reset original one
     if(defined($vf->{original_allele_string})) {
 

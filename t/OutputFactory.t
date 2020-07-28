@@ -179,8 +179,43 @@ is_deeply(
   'add_colocated_variant_info - somatic',
 );
 
+## get_all_VariationFeatureOverlapAllele_output_hashes
+##################################
+$of->{refseq} = 1;
 
+$ib = get_annotated_buffer({
+  input_file => $test_cfg->create_input_file([qw(21 10235239 . T TTATTCATAACGTT,TT . . .)]),
+  species => 'homo_sapiens',
+  dir => $test_cfg->{cache_root_dir},
+  refseq => 1,
+  fasta => $test_cfg->{fasta},
+});
+$DB::single = 1;
+is_deeply(
+  $of->get_all_VariationFeatureOverlapAllele_output_hashes($ib->buffer->[0],  {
+    'Location' => '21:10235239'
+  }), 
+[
+  {
+    'Location' => '21:10235239',
+    'Allele' => 'TATTCATAACGTT',
+    'Consequence' => [
+      'intergenic_variant'
+    ],
+    'IMPACT' => 'MODIFIER'
+  },
+  {
+    'Location' => '21:10235239',
+    'Consequence' => [
+      'intergenic_variant'
+    ],
+    'Allele' => 'T',
+    'IMPACT' => 'MODIFIER'
+  }
+]
+);
 
+$of->{refseq} = 0;
 ## VariationFeature_to_output_hash
 ##################################
 
@@ -1735,7 +1770,7 @@ my %by_allele =
   map {$_->{Allele} => $_}
   grep {$_->{Feature} eq 'ENST00000400075'}
   @{$of->get_all_output_hashes_by_VariationFeature($ib->buffer->[0])};
-
+$DB::single = 1;
 is_deeply(
   \%by_allele,
   {
