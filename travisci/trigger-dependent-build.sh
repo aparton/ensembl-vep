@@ -20,9 +20,6 @@
 # Global Variables #
 ####################
 
-# The authorisation token
-auth_token=MdFujR8JsfCR9uJdw7jrPg
-
 
 # The Travis API endpoint. .com and .org are the commercial and free versions,
 # respectively; enterprise users will have their own hostname.
